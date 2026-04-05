@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="mb-1"> Movie Recommendation</h2>
+    <p class="text-muted mb-4">Describe the type of movie you're looking for and we'll find the best match using AI.</p>
+
+    <!-- Search Form -->
+    <form action="">
+        <div class="mb-3">
+            <label for="prompt" class="form-label fw-semibold">
+                What kind of movie are you looking for?
+            </label>
+            <input
+                type="text"
+                class="form-control form-control-lg"
+                name="prompt"
+                id="prompt"
+                placeholder="e.g. A war movie about courage and survival..."
+                value="{{ prompt|default:'' }}"
+            />
+            <div class="form-text">Describe a theme, genre, feeling, or plot — the more detail, the better the match.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">
+             Find Movie
+        </button>
+    </form>
+
+    <!-- Error Message -->
+    {% if error_message %}
+    <div class="alert alert-danger mt-4" role="alert">
+        <strong> Error:</strong> {{ error_message }}
+    </div>
+    {% endif %}
+
+    <!-- Result -->
+    {% if recommended_movie %}
+    <div class="mt-5">
+        <hr>
+        <h4 class="mb-3">
+             Best match for: <em>"{{ prompt }}"</em>
+        </h4>
+
+        <div class="card shadow-sm" style="max-width: 700px;">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    {% if recommended_movie.image %}
+                    <img
+                        src="{{ recommended_movie.image.url }}"
+                        class="img-fluid rounded-start h-100"
+                        style="object-fit: cover;"
+                        alt="{{ recommended_movie.title }}"
+                    >
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center h-100 bg-secondary text-white rounded-start" style="min-height: 200px;">
+                        <span>No Image</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ recommended_movie.title }}</h5>
+
+                        {% if recommended_movie.year %}
+                        <p class="card-text mb-1">
+                            <small class="text-muted">📅 {{ recommended_movie.year }}</small>
+                        </p>
+                        {% endif %}
+
+                        {% if recommended_movie.genre %}
+                        <p class="card-text mb-2">
+                            <span class="badge bg-secondary">{{ recommended_movie.genre }}</span>
+                        </p>
+                        {% endif %}
+
+                        <p class="card-text">{{ recommended_movie.description }}</p>
+
+                        {% if similarity_score %}
+                        <p class="card-text mt-2">
+                            <small class="text-success fw-semibold">
+                                 Similarity score: {{ similarity_score }}
+                            </small>
+                        </p>
+                        {% endif %}
+
+                        {% if recommended_movie.url %}
+                        <a href="{{ recommended_movie.url }}" class="btn btn-primary btn-sm mt-2" target="_blank">
+                             Watch Movie
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% elif prompt and not error_message %}
+    <div class="alert alert-warning mt-4" role="alert">
+        No movies found in the database. Make sure the embeddings have been generated.
+    </div>
+    {% endif %}
+
+    <br><br>
+</div>
+
+{% endblock content %}
